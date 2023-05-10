@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
+
+late Size mq;
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.white,
           ),
         ),
-        home: HomeScreen(),
+        home: LoginScreen(),
       );
       
   }
