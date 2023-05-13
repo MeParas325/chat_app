@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,11 +11,24 @@ import 'package:firebase_core/firebase_core.dart';
 late Size mq;
 
 void main() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const MyApp());
+  // enable full screen
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+  // set device orientation
+  SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
+      .then((value) async {
+
+        // initialize firebase
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        runApp(const MyApp());
+  });
+
+  
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +46,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
       ),
-      home: LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }
