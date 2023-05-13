@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'screens/auth/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/splash_screen.dart';
 
 import 'firebase_options.dart';

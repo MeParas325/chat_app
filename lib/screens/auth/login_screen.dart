@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 
 import 'package:untitled/main.dart';
+import '../../api/apis.dart';
 import '../../helper/dialogs.dart';
 import '../home_screen.dart';
 
@@ -31,7 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _handleGoogleBtnClick() {
+    Dialogs.showProgressBar(context);
     _signInWithGoogle().then((user) {
+      Navigator.pop(context);
       if (user != null) {
         log("User: ${user.user}, ${user.additionalUserInfo}");
         Navigator.pushReplacement(
@@ -58,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       // Once signed in, return the UserCredential
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      return await APIs.auth.signInWithCredential(credential);
     } catch (e) {
       Dialogs.showSnackbar(
           context, 'Something went wrong! Check your Internet connection');

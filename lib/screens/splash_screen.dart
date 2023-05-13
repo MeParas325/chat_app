@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:untitled/main.dart';
-import 'package:untitled/screens/home_screen.dart';
-
+import '../api/apis.dart';
 import 'auth/login_screen.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,8 +21,13 @@ class _SplashScreenState extends State<SplashScreen> {
       // disable full mode
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      if (APIs.auth.currentUser != null) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: ((context) => HomeScreen())));
+      } else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      }
     });
     super.initState();
   }
