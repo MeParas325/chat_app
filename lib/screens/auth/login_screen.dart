@@ -33,12 +33,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _handleGoogleBtnClick() {
     Dialogs.showProgressBar(context);
-    _signInWithGoogle().then((user) {
+    _signInWithGoogle().then((user) async {
       Navigator.pop(context);
       if (user != null) {
         log("User: ${user.user}, ${user.additionalUserInfo}");
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+
+        if ((await APIs.userExists())) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        } else {
+          await APIs.createuser().then((value) => 
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen())),
+          );
+        }
       }
     });
   }
