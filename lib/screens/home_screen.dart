@@ -6,6 +6,7 @@ import 'package:untitled/widgets/chat_user_card.dart';
 
 import '../api/apis.dart';
 import '../models/chat_user.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ChatUser> usersData = [];
 
   @override
+  void initState() {
+    APIs.getSelfInfo();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -25,10 +32,19 @@ class _HomeScreenState extends State<HomeScreen> {
           title: Text("Our Chat"),
           actions: [
             IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-            IconButton(onPressed: () {}, icon: Icon(Icons.more_vert)),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => ProfileScreen(
+                                user: APIs.me,
+                              )));
+                },
+                icon: Icon(Icons.more_vert)),
           ]),
       body: StreamBuilder(
-          stream: APIs.firestore.collection('users').snapshots(),
+          stream: APIs.getAllUsers(),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
@@ -67,12 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
           }),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: FloatingActionButton(
-            onPressed: () async {
-              await APIs.auth.signOut();
-              await GoogleSignIn().signOut();
-            },
-            child: Icon(Icons.add_comment_rounded)),
+        child: FloatingActionButton.extended(
+          backgroundColor: Colors.red,
+          onPressed: () async {
+            await APIs.auth.signOut();
+            await GoogleSignIn().signOut();
+          },
+          icon: Icon(Icons.logout),
+          label: Text("logout"),
+        ),
       ),
     );
   }

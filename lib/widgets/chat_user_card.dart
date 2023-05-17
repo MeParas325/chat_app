@@ -6,7 +6,6 @@ import 'package:untitled/main.dart';
 import '../models/chat_user.dart';
 
 class ChatUserCard extends StatefulWidget {
-  
   final ChatUser user;
   const ChatUserCard({super.key, required this.user});
 
@@ -25,33 +24,29 @@ class _ChatUserCardState extends State<ChatUserCard> {
           print("Clicked");
         },
         child: ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(mq.height * 0.3),
-            child: CachedNetworkImage(
-              width: mq.width * 0.075,
-              height: mq.height * 0.075,
-              fit: BoxFit.contain,
-              imageUrl: widget.user.image,
-              errorWidget: (context, url, error) => CircleAvatar(child: Icon(CupertinoIcons.person),),
-          
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(mq.height * 0.4),
+              child: CachedNetworkImage(
+                width: mq.width * 0.085,
+                height: mq.height * 0.085,
+                imageUrl: widget.user.image,
+                errorWidget: (context, url, error) => CircleAvatar(
+                  child: Icon(CupertinoIcons.person),
+                ),
+              ),
             ),
-          ),
-
-          title: Text(widget.user.name),
-          subtitle: Text(
-            widget.user.about,
-            maxLines: 1,
-          ),
-
-          trailing: Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.greenAccent.shade400,
-              borderRadius: BorderRadius.circular(10)
+            title: Text(widget.user.name),
+            subtitle: Text(
+              widget.user.about,
+              maxLines: 1,
             ),
-          )
-        ),
+            trailing: Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                  color: Colors.greenAccent.shade400,
+                  borderRadius: BorderRadius.circular(10)),
+            )),
       ),
     );
   }
