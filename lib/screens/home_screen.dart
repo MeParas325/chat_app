@@ -1,11 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:untitled/widgets/chat_user_card.dart';
-
 import '../api/apis.dart';
 import '../models/chat_user.dart';
 import 'profile_screen.dart';

@@ -1,12 +1,14 @@
 import 'dart:developer';
+import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:untitled/helper/dialogs.dart';
+import 'package:image_picker/image_picker.dart';
 
+import 'package:untitled/helper/dialogs.dart';
 import '../api/apis.dart';
 import '../main.dart';
 import '../models/chat_user.dart';
@@ -23,6 +25,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  String? imagePath;
+
   @override
   Widget build(BuildContext context) {
     print(widget.user);
@@ -38,38 +42,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: mq.height * 0.05),
             child: SingleChildScrollView(
               child: Column(children: [
-                SizedBox(height: mq.height * 0.1 ,),
+                SizedBox(
+                  height: mq.height * 0.05,
+                ),
                 Stack(children: [
-                  CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                    widget.user.image,
-                    maxWidth: 40,
-                    maxHeight: 40,
-                  ),
-                  ),
-                  
+                  imagePath != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(mq.height * .1),
+                          child: Image.file(
+                            File(imagePath!),
+                            width: mq.height * .2,
+                            height: mq.height * .2,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(mq.height * .1),
+                          child: CachedNetworkImage(
+                            width: mq.height * .2,
+                            height: mq.height * .2,
+                            fit: BoxFit.cover,
+                            imageUrl: widget.user.image,
+                            errorWidget: (context, url, error) =>
+                                const CircleAvatar(
+                                    child: Icon(CupertinoIcons.person)),
+                          ),
+                        ),
                   Positioned(
-                      top: 0,
+                      right: 0,
                       bottom: 0,
                       child: MaterialButton(
+                        elevation: 2,
                         shape: CircleBorder(),
-                        onPressed: () {},
-                        child: Icon(Icons.edit),
-                        color: Colors.blue,
+                        onPressed: () {
+                          // print("Inside edit buttom function");
+                          showBottomModelView(context);
+                        },
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                        ),
+                        color: Colors.white,
                       )),
                 ]),
-
-                SizedBox(height: mq.height * .02,),
-
+                SizedBox(
+                  height: mq.height * .02,
+                ),
                 Text(
                   widget.user.email,
                   style: TextStyle(color: Colors.black54, fontSize: 16),
                 ),
-
                 SizedBox(
                   height: mq.height * 0.05,
                 ),
-
                 TextFormField(
                   initialValue: widget.user.name,
                   onSaved: (newValue) => APIs.me.name = newValue ?? '',
@@ -86,11 +111,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12))),
                 ),
-
                 SizedBox(
                   height: mq.height * 0.02,
                 ),
-
                 TextFormField(
                   initialValue: widget.user.about,
                   onSaved: (newValue) => APIs.me.about = newValue ?? '',
@@ -107,18 +130,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12))),
                 ),
-
                 SizedBox(
                   height: mq.height * 0.05,
                 ),
-
                 ElevatedButton.icon(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         APIs.updateUserInfo();
                         Dialogs.showSnackbar(
-                            context, 'Profile Updated Successfully.');
+                            context, 'Username updated successfully.');
                         log("Validator called");
                       }
                     },
@@ -158,5 +179,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  void showBottomModelView(BuildContext context) {
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        ),
+        context: context,
+        builder: (_) {
+          return ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.only(
+                top: mq.height * 0.03, bottom: mq.height * 0.05),
+            children: [
+              Text(
+                "Pick Profile Picture",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+              ),
+              SizedBox(
+                height: mq.height * 0.02,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: CircleBorder(),
+                        backgroundColor: Colors.white,
+                        fixedSize: Size(mq.width * 0.3, mq.height * 0.15),
+                      ),
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        // Pick an image.
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.gallery);
+
+                        if (image != null) {
+                          log('ImagePath: ${image.path}');
+                          setState(() {
+                            imagePath = image.path;
+                          });
+                          await APIs.updateProfilePhoto(File(image.path));
+                          Navigator.of(context).pop();
+                          Dialogs.showSnackbar(
+                              context, 'Profile picture updated successfully.');
+                        }
+                      },
+                      child: Image.asset("assets/icon/add_image.png")),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: CircleBorder(),
+                        backgroundColor: Colors.white,
+                        fixedSize: Size(mq.width * 0.3, mq.height * 0.15),
+                      ),
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        // open camera
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.camera);
+
+                        if (image != null) {
+                          log('ImagePath: ${image.path}');
+                          setState(() {
+                            imagePath = image.path;
+                          });
+                          await APIs.updateProfilePhoto(File(image.path));
+                          Navigator.of(context).pop();
+                          Dialogs.showSnackbar(
+                              context, 'Profile picture updated successfully.');
+                        }
+                      },
+                      child: Image.asset("assets/icon/camera.png")),
+                ],
+              ),
+            ],
+          );
+        });
   }
 }
