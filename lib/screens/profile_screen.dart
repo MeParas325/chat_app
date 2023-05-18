@@ -38,15 +38,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: mq.height * 0.05),
             child: SingleChildScrollView(
               child: Column(children: [
+                SizedBox(height: mq.height * 0.1 ,),
                 Stack(children: [
-                  CachedNetworkImage(
-                    imageUrl: widget.user.image,
-                    width: mq.width * 0.2,
-                    height: mq.height * 0.2,
-                    errorWidget: (context, url, error) => CircleAvatar(
-                      child: Icon(CupertinoIcons.person),
-                    ),
+                  CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                    widget.user.image,
+                    maxWidth: 40,
+                    maxHeight: 40,
                   ),
+                  ),
+                  
                   Positioned(
                       top: 0,
                       bottom: 0,
@@ -58,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       )),
                 ]),
 
-                // SizedBox(height: mq.height * .02,),
+                SizedBox(height: mq.height * .02,),
 
                 Text(
                   widget.user.email,

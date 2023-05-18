@@ -24,17 +24,11 @@ class _ChatUserCardState extends State<ChatUserCard> {
           print("Clicked");
         },
         child: ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(mq.height * 0.4),
-              child: CachedNetworkImage(
-                width: mq.width * 0.085,
-                height: mq.height * 0.085,
-                imageUrl: widget.user.image,
-                errorWidget: (context, url, error) => CircleAvatar(
-                  child: Icon(CupertinoIcons.person),
+            leading: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(
+                  widget.user.image,
                 ),
               ),
-            ),
             title: Text(widget.user.name),
             subtitle: Text(
               widget.user.about,
