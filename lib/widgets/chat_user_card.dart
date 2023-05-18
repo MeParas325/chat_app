@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:untitled/main.dart';
+import 'package:untitled/screens/chat_screen.dart';
 import '../models/chat_user.dart';
 
 class ChatUserCard extends StatefulWidget {
@@ -22,14 +23,14 @@ class _ChatUserCardState extends State<ChatUserCard> {
       margin: EdgeInsets.symmetric(horizontal: mq.width * 0.01, vertical: 1),
       child: InkWell(
         onTap: () {
-          print("Clicked");
+          Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user) ));
         },
         child: ListTile(
             leading: ClipRRect(
-              borderRadius: BorderRadius.circular(mq.height * .3),
+              borderRadius: BorderRadius.circular(mq.height * .03),
               child: CachedNetworkImage(
-                width: mq.height * .05,
-                height: mq.height * .05,
+                width: mq.height * .055,
+                height: mq.height * .055,
                 fit: BoxFit.cover,
                 imageUrl: widget.user.image,
                 errorWidget: (context, url, error) =>

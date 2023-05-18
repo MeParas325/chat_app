@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // disable full mode
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+          SystemUiOverlayStyle(statusBarColor: Colors.white));
 
       if (APIs.auth.currentUser != null) {
         Navigator.pushReplacement(

@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:untitled/widgets/chat_user_card.dart';
 import '../api/apis.dart';
 import '../models/chat_user.dart';
@@ -147,15 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
               }),
           floatingActionButton: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: FloatingActionButton.extended(
-              backgroundColor: Colors.red,
-              onPressed: () async {
-                await APIs.auth.signOut();
-                await GoogleSignIn().signOut();
-              },
-              icon: Icon(Icons.logout),
-              label: Text("logout"),
-            ),
+            child: FloatingActionButton(onPressed: (){}, child: Icon(Icons.message_rounded,),)
           ),
         ),
       ),
