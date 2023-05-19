@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 
 import '../models/chat_user.dart';
 
@@ -104,4 +103,13 @@ class APIs {
         .doc(user.uid)
         .update({'image': me.image});
   }
+
+
+  // """"""""""""""""Chat screen related APIs""""""""""""""""""
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages() {
+    return APIs.firestore
+        .collection('messages')
+        .snapshots();
+  }
+  
 }

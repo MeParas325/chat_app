@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/api/apis.dart';
+
+import '../main.dart';
+import '../models/messages.dart';
 
 class MessageCard extends StatefulWidget {
-  const MessageCard({super.key});
+  final Message msg;
+  const MessageCard({super.key, required this.msg});
 
   @override
   State<MessageCard> createState() => _MessageCardState();
@@ -10,6 +15,76 @@ class MessageCard extends StatefulWidget {
 class _MessageCardState extends State<MessageCard> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return APIs.user.uid == widget.msg.fromId
+        ? _greenMessage()
+        : _blueMessage();
+  }
+
+  Widget _blueMessage() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: mq.height * 0.02, horizontal: mq.width * 0.025),
+            padding: EdgeInsets.all(mq.width * 0.04),
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 221, 245, 255),
+              border: Border.all(color: Colors.lightBlue),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Text(widget.msg.msg, style: TextStyle(fontSize: 16, color: Colors.black87),),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: mq.width * 0.04),
+          child: Text(
+            widget.msg.sent,
+            style: TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _greenMessage() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        
+        Row(
+          children: [
+            SizedBox(width: mq.width * 0.02,),
+            Icon(Icons.done_all_rounded, size: 15, color: Colors.blue,),
+            SizedBox(width: 3,),
+            Text(
+              widget.msg.read + '12:00 AM',
+              style: TextStyle(fontSize: 13, color: Colors.black54),
+            ),
+          ],
+        ),
+
+        Flexible(
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: mq.height * 0.02, horizontal: mq.width * 0.025),
+            padding: EdgeInsets.all(mq.width * 0.04),
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 218, 245, 176),
+              border: Border.all(color: Colors.lightGreen),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+                bottomLeft: Radius.circular(30),
+              ),
+            ),
+            child: Text(widget.msg.msg, style: TextStyle(fontSize: 16, color: Colors.black87),),
+          ),
+        ),
+      ],
+    );
   }
 }

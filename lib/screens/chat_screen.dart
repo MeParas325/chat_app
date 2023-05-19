@@ -1,10 +1,16 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/widgets/message_card.dart';
 
+import '../api/apis.dart';
 import '../main.dart';
 import '../models/chat_user.dart';
+import '../models/messages.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -15,6 +21,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
+  List<Message> _listOfMessages = [];
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -23,46 +30,64 @@ class ChatScreenState extends State<ChatScreen> {
           automaticallyImplyLeading: false,
           flexibleSpace: _appBar(),
         ),
+        backgroundColor: Color.fromARGB(255, 240, 247, 250),
         body: Column(
           children: [
             Expanded(
               child: StreamBuilder(
-                // stream: APIs.getAllUsers(),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.none:
-                      // return Center(
-                      //   child: CircularProgressIndicator(),
-                      // );
-            
-                    case ConnectionState.active:
-                    case ConnectionState.done:
-                      // final data = snapshot.data?.docs;
-            
-                      // _usersData = data
-                      //         ?.map((user) => ChatUser.fromJson(user.data()))
-                      //         .toList() ??
-                      //     [];
-                      // log('Data: ${usersData}');
-                      final _list = [];
-            
-                      if (_list.isNotEmpty) {
-                        return ListView.builder(
-                            physics: BouncingScrollPhysics(),
-                            itemCount:_list.length,
-                            itemBuilder: (context, index) {
-                              return  Text('${_list[index]}');
-                            });
-                      } else {
+                  stream: APIs.getAllMessages(),
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                      case ConnectionState.none:
                         return Center(
-                            child: Text(
-                          "Say hi!👋",
-                          style: TextStyle(fontSize: 17, color: Colors.black54),
-                        ));
-                      }
-                  }
-                }),
+                          child: CircularProgressIndicator(),
+                        );
+
+                      case ConnectionState.active:
+                      case ConnectionState.done:
+                        final data = snapshot.data?.docs;
+                        log("Messages: ${jsonEncode(data![0].data())}");
+
+                        // _usersData = data
+                        //         ?.map((user) => ChatUser.fromJson(user.data()))
+                        //         .toList() ??
+                        //     [];
+                        // log('Data: ${usersData}');
+                        _listOfMessages.clear();
+                        _listOfMessages.add(Message(
+                            toId: 'xyz',
+                            msg: 'hii',
+                            read: '',
+                            type: Type.text,
+                            sent: '12:00 AM',
+                            fromId: APIs.user.uid));
+
+                        _listOfMessages.add(Message(
+                            toId: APIs.user.uid,
+                            msg: 'hello',
+                            read: '',
+                            type: Type.text,
+                            sent: '12:05 AM',
+                            fromId: 'xyz'));
+
+                        if (_listOfMessages.isNotEmpty) {
+                          return ListView.builder(
+                              physics: BouncingScrollPhysics(),
+                              itemCount: _listOfMessages.length,
+                              itemBuilder: (context, index) {
+                                return MessageCard(msg: _listOfMessages[index]);
+                              });
+                        } else {
+                          return Center(
+                              child: Text(
+                            "Say hi!👋",
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black54),
+                          ));
+                        }
+                    }
+                  }),
             ),
             _chatInputField(),
           ],
@@ -138,8 +163,8 @@ class ChatScreenState extends State<ChatScreen> {
                       )),
                   Expanded(
                       child: TextField(
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Type something..',
