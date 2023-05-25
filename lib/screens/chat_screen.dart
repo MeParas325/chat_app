@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,76 +22,95 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
+  bool _showEmojis = false;
   List<Message> _listOfMessages = [];
+
+  final _textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          flexibleSpace: _appBar(),
-        ),
-        backgroundColor: Color.fromARGB(255, 240, 247, 250),
-        body: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder(
-                  stream: APIs.getAllMessages(),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                      case ConnectionState.none:
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: WillPopScope(
+          onWillPop: () {
+            if (_showEmojis) {
+              setState(() {
+                _showEmojis = false;
+              });
 
-                      case ConnectionState.active:
-                      case ConnectionState.done:
-                        final data = snapshot.data?.docs;
-                        log("Messages: ${jsonEncode(data![0].data())}");
-
-                        // _usersData = data
-                        //         ?.map((user) => ChatUser.fromJson(user.data()))
-                        //         .toList() ??
-                        //     [];
-                        // log('Data: ${usersData}');
-                        _listOfMessages.clear();
-                        _listOfMessages.add(Message(
-                            toId: 'xyz',
-                            msg: 'hii',
-                            read: '',
-                            type: Type.text,
-                            sent: '12:00 AM',
-                            fromId: APIs.user.uid));
-
-                        _listOfMessages.add(Message(
-                            toId: APIs.user.uid,
-                            msg: 'hello',
-                            read: '',
-                            type: Type.text,
-                            sent: '12:05 AM',
-                            fromId: 'xyz'));
-
-                        if (_listOfMessages.isNotEmpty) {
-                          return ListView.builder(
-                              physics: BouncingScrollPhysics(),
-                              itemCount: _listOfMessages.length,
-                              itemBuilder: (context, index) {
-                                return MessageCard(msg: _listOfMessages[index]);
-                              });
-                        } else {
-                          return Center(
-                              child: Text(
-                            "Say hi!👋",
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black54),
-                          ));
-                        }
-                    }
-                  }),
+              return Future.value(false);
+            } else {
+              return Future.value(true);
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              flexibleSpace: _appBar(),
             ),
-            _chatInputField(),
-          ],
+            backgroundColor: Color.fromARGB(255, 240, 247, 250),
+            body: Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder(
+                      stream: APIs.getAllMessages(widget.user),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                          case ConnectionState.none:
+                            return Center(
+                              child: SizedBox(),
+                            );
+
+                          case ConnectionState.active:
+                          case ConnectionState.done:
+                            final data = snapshot.data?.docs;
+
+                            _listOfMessages = data
+                                    ?.map(
+                                        (user) => Message.fromJson(user.data()))
+                                    .toList() ??
+                                [];
+                            log('Data: ${_listOfMessages}');
+
+                            if (_listOfMessages.isNotEmpty) {
+                              return ListView.builder(
+                                  physics: BouncingScrollPhysics(),
+                                  itemCount: _listOfMessages.length,
+                                  itemBuilder: (context, index) {
+                                    return MessageCard(
+                                        msg: _listOfMessages[index]);
+                                  });
+                            } else {
+                              return Center(
+                                  child: Text(
+                                "Say hi!👋",
+                                style: TextStyle(
+                                    fontSize: 17, color: Colors.black54),
+                              ));
+                            }
+                        }
+                      }),
+                ),
+                _chatInputField(),
+                if (_showEmojis)
+                  SizedBox(
+                    height: mq.height * 0.35,
+                    child: EmojiPicker(
+                      textEditingController:
+                          _textController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
+                      config: Config(
+                        columns: 7,
+                        emojiSizeMax: 32 *
+                            (Platform.isIOS
+                                ? 1.30
+                                : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
+                      ),
+                    ),
+                  )
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -155,7 +175,12 @@ class ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        setState(() {
+                          _showEmojis = !_showEmojis;
+                        });
+                      },
                       icon: Icon(
                         Icons.emoji_emotions,
                         color: Colors.blueAccent,
@@ -163,7 +188,12 @@ class ChatScreenState extends State<ChatScreen> {
                       )),
                   Expanded(
                       child: TextField(
+                    controller: _textController,
                     keyboardType: TextInputType.multiline,
+                    onTap: (() {
+                      if (_showEmojis)
+                        setState(() => _showEmojis = !_showEmojis);
+                    }),
                     maxLines: null,
                     decoration: InputDecoration(
                         border: InputBorder.none,
@@ -193,7 +223,12 @@ class ChatScreenState extends State<ChatScreen> {
             padding: EdgeInsets.only(top: 6, right: 6, bottom: 6, left: 9),
             shape: CircleBorder(),
             color: Colors.blue,
-            onPressed: () {},
+            onPressed: () {
+              if (_textController.text.isNotEmpty) {
+                APIs.sendMessage(widget.user, _textController.text);
+                _textController.text = '';
+              }
+            },
             child: Icon(
               Icons.send,
               color: Colors.white,

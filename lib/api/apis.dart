@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:untitled/models/messages.dart';
 
 import '../models/chat_user.dart';
 
@@ -104,12 +105,53 @@ class APIs {
         .update({'image': me.image});
   }
 
-
   // """"""""""""""""Chat screen related APIs""""""""""""""""""
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages() {
+
+  // for getting the conversion id
+  static String getConversionId(String id) => user.uid.hashCode <= id.hashCode
+      ? '${user.uid}.$id'
+      : '${id}.${user.uid}';
+
+  // for getting all messages
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
+      ChatUser user) {
     return APIs.firestore
-        .collection('messages')
+        .collection('chats/${getConversionId(user.id)}/messages')
         .snapshots();
   }
-  
+
+  // for sending message
+  static Future<void> sendMessage(ChatUser chatUser, String msg) async {
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final Message message = Message(
+        toId: chatUser.id,
+        msg: msg,
+        read: '',
+        type: Type.text,
+        sent: time,
+        fromId: user.uid);
+    final ref =
+        firestore.collection('chats/${getConversionId(chatUser.id)}/messages');
+    await ref.doc(time).set(message.toJson());
+  }
+
+  // for updating message read status
+  static Future<void> updateMessageReadStatus(Message message) async {
+    firestore
+        .collection('chats/${getConversionId(message.fromId)}/messages')
+        .doc(message.sent)
+        .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
+  }
+
+  // for getting the last message
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      ChatUser user) {
+    return APIs.firestore
+        .collection('chats/${getConversionId(user.id)}/messages')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
+  }
+
 }
