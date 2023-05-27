@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled/api/apis.dart';
 
@@ -35,7 +36,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Container(
             margin: EdgeInsets.symmetric(
                 vertical: mq.height * 0.02, horizontal: mq.width * 0.025),
-            padding: EdgeInsets.all(mq.width * 0.04),
+            padding: EdgeInsets.all(widget.msg.type == Type.text ? mq.width * 0.04  : mq.width * 0.03),
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 221, 245, 255),
               border: Border.all(color: Colors.lightBlue),
@@ -45,12 +46,24 @@ class _MessageCardState extends State<MessageCard> {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            child: Text(
+            child: widget.msg.type == Type.text ? Text(
               widget.msg.msg,
               style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
+            ) :  ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: CircularProgressIndicator(strokeWidth: 2,),
+                    ),
+                    imageUrl: widget.msg.msg,
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.image)),
+                  ),
+                ),
           ),
-        ),
+        
         Padding(
           padding: EdgeInsets.only(right: mq.width * 0.04),
           child: Text(
@@ -93,7 +106,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Container(
             margin: EdgeInsets.symmetric(
                 vertical: mq.height * 0.02, horizontal: mq.width * 0.025),
-            padding: EdgeInsets.all(mq.width * 0.04),
+            padding: EdgeInsets.all(widget.msg.type == Type.text ? mq.width * 0.04  : mq.width * 0.03),
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 218, 245, 176),
               border: Border.all(color: Colors.lightGreen),
@@ -103,10 +116,21 @@ class _MessageCardState extends State<MessageCard> {
                 bottomLeft: Radius.circular(30),
               ),
             ),
-            child: Text(
+            child:widget.msg.type == Type.text ? Text(
               widget.msg.msg,
               style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
+            ) :  ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: CircularProgressIndicator(strokeWidth: 2,),
+                    ),
+                    imageUrl: widget.msg.msg,
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.image)),
+                  ),
           ),
         ),
       ],

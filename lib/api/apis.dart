@@ -117,18 +117,20 @@ class APIs {
       ChatUser user) {
     return APIs.firestore
         .collection('chats/${getConversionId(user.id)}/messages')
+        .orderBy('sent', descending: true)
         .snapshots();
   }
 
   // for sending message
-  static Future<void> sendMessage(ChatUser chatUser, String msg) async {
+  static Future<void> sendMessage(
+      ChatUser chatUser, String msg, Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     final Message message = Message(
         toId: chatUser.id,
         msg: msg,
         read: '',
-        type: Type.text,
+        type: type,
         sent: time,
         fromId: user.uid);
     final ref =
@@ -154,4 +156,20 @@ class APIs {
         .snapshots();
   }
 
+  // for sending chat image
+  static Future<void> sendChatImage(ChatUser chatUser, File file) async {
+    final ext = file.path.split('.').last;
+
+    // storage file ref with path
+    final ref = storage.ref().child(
+        'images/${getConversionId(chatUser.id)}/${DateTime.now().millisecondsSinceEpoch}.${ext}');
+
+    //uploading image
+    await ref.putFile(file, SettableMetadata(contentType: 'image/${ext}')).then(
+        (p0) => log("Data transferred: ${p0.bytesTransferred / 1000} kb"));
+
+    // updating image in firestore database
+    final imageUrl = await ref.getDownloadURL();
+    await sendMessage(chatUser, imageUrl, Type.image);
+  }
 }

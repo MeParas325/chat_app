@@ -59,7 +59,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 ),
                 title: Text(widget.user.name),
                 subtitle: Text(
-                  _lastMessage != null ? _lastMessage!.msg : widget.user.about,
+                  _lastMessage != null ? _lastMessage!.type ==  Type.image  ? 'Image' : _lastMessage!.msg : widget.user.about,
                   maxLines: 1,
                 ),
                 trailing: _lastMessage == null ? null : _lastMessage!.read.isEmpty && _lastMessage!.fromId != APIs.user.uid ? Container(

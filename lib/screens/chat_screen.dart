@@ -6,6 +6,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:untitled/widgets/message_card.dart';
 
 import '../api/apis.dart';
@@ -22,7 +23,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  bool _showEmojis = false;
+
+  bool _showEmojis = false, _isUploading = false;
   List<Message> _listOfMessages = [];
 
   final _textController = TextEditingController();
@@ -75,6 +77,7 @@ class ChatScreenState extends State<ChatScreen> {
 
                             if (_listOfMessages.isNotEmpty) {
                               return ListView.builder(
+                                reverse: true,
                                   physics: BouncingScrollPhysics(),
                                   itemCount: _listOfMessages.length,
                                   itemBuilder: (context, index) {
@@ -92,6 +95,15 @@ class ChatScreenState extends State<ChatScreen> {
                         }
                       }),
                 ),
+                
+                if(_isUploading)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2,),
+                      )),
+                
                 _chatInputField(),
                 if (_showEmojis)
                   SizedBox(
@@ -201,14 +213,41 @@ class ChatScreenState extends State<ChatScreen> {
                         hintStyle: TextStyle(color: Colors.blueAccent)),
                   )),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        // open camera
+                        List<XFile> images =
+                            await picker.pickMultiImage();
+
+                        if (images.isNotEmpty) {
+                          // log('ImagePath: ${images.path}');
+                          for(var i in images) {
+                          setState(() => _isUploading = true);
+                          await APIs.sendChatImage(widget.user, File(i.path));
+                          setState(() => _isUploading = false);
+
+                          }
+                        }
+                      },
                       icon: Icon(
                         Icons.image,
                         color: Colors.blueAccent,
                         size: 26,
                       )),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        // open camera
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.camera);
+
+                        if (image != null) {
+                          log('ImagePath: ${image.path}');
+                          setState(() => _isUploading = true);
+                          await APIs.sendChatImage(widget.user, File(image.path));
+                          setState(() => _isUploading = false);
+                        }
+                      },
                       icon: Icon(
                         Icons.camera_alt,
                         color: Colors.blueAccent,
@@ -225,7 +264,7 @@ class ChatScreenState extends State<ChatScreen> {
             color: Colors.blue,
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendMessage(widget.user, _textController.text);
+                APIs.sendMessage(widget.user, _textController.text, Type.text);
                 _textController.text = '';
               }
             },
