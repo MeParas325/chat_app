@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:untitled/widgets/chat_user_card.dart';
 import '../api/apis.dart';
@@ -23,6 +24,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     APIs.getSelfInfo();
     super.initState();
+    APIs.updateActiveStatus(true);
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      if (APIs.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          APIs.updateActiveStatus(true);
+        if (message.toString().contains('pause'))
+          APIs.updateActiveStatus(false);
+      }
+      return Future.value(message);
+    });
   }
 
   @override
@@ -144,9 +155,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }),
           floatingActionButton: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FloatingActionButton(onPressed: (){}, child: Icon(Icons.message_rounded,),)
-          ),
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.message_rounded,
+                ),
+              )),
         ),
       ),
     );

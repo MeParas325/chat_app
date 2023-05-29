@@ -7,12 +7,14 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled/helper/my_date_formatter.dart';
 import 'package:untitled/widgets/message_card.dart';
 
 import '../api/apis.dart';
 import '../main.dart';
 import '../models/chat_user.dart';
 import '../models/messages.dart';
+import 'view_profile_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -23,7 +25,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-
   bool _showEmojis = false, _isUploading = false;
   List<Message> _listOfMessages = [];
 
@@ -77,7 +78,7 @@ class ChatScreenState extends State<ChatScreen> {
 
                             if (_listOfMessages.isNotEmpty) {
                               return ListView.builder(
-                                reverse: true,
+                                  reverse: true,
                                   physics: BouncingScrollPhysics(),
                                   itemCount: _listOfMessages.length,
                                   itemBuilder: (context, index) {
@@ -95,15 +96,15 @@ class ChatScreenState extends State<ChatScreen> {
                         }
                       }),
                 ),
-                
-                if(_isUploading)
-                    Align(
+                if (_isUploading)
+                  Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2,),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                       )),
-                
                 _chatInputField(),
                 if (_showEmojis)
                   SizedBox(
@@ -130,48 +131,74 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget _appBar() {
     return InkWell(
-      onTap: () {},
-      child: Row(
-        children: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              icon: Icon(CupertinoIcons.arrow_left)),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(mq.height * .03),
-            child: CachedNetworkImage(
-              width: mq.height * .05,
-              height: mq.height * .05,
-              fit: BoxFit.cover,
-              imageUrl: widget.user.image,
-              errorWidget: (context, url, error) =>
-                  const CircleAvatar(child: Icon(CupertinoIcons.person)),
-            ),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.user.name,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(
-                height: 2,
-              ),
-              Text(
-                "Last seen not available",
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ViewProfileScreen(user: widget.user)));
+        },
+        child: StreamBuilder(
+            stream: APIs.getUserInfo(widget.user),
+            builder: ((context, snapshot) {
+              final data = snapshot.data?.docs;
+              final list =
+                  data?.map((e) => ChatUser.fromJson(e.data())).toList() ?? [];
+              return Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(CupertinoIcons.arrow_left)),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(mq.height * .03),
+                    child: CachedNetworkImage(
+                      width: mq.height * .05,
+                      height: mq.height * .05,
+                      fit: BoxFit.cover,
+                      imageUrl:
+                          list.isNotEmpty ? list[0].image : widget.user.image,
+                      errorWidget: (context, url, error) => const CircleAvatar(
+                          child: Icon(CupertinoIcons.person)),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        list.isNotEmpty ? list[0].name : widget.user.name,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        list.isNotEmpty
+                            ? list[0].isOnline
+                                ? 'online'
+                                : list.isNotEmpty
+                                    ? MyDateFormatter.getlastActiveTime(
+                                        context: context,
+                                        lastActive: list[0].lastActive)
+                                    : MyDateFormatter.getlastActiveTime(
+                                        context: context,
+                                        lastActive: widget.user.lastActive)
+                            : MyDateFormatter.getlastActiveTime(
+                                context: context,
+                                lastActive: widget.user.lastActive),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
+                ],
+              );
+            })));
   }
 
   Widget _chatInputField() {
@@ -216,16 +243,14 @@ class ChatScreenState extends State<ChatScreen> {
                       onPressed: () async {
                         final ImagePicker picker = ImagePicker();
                         // open camera
-                        List<XFile> images =
-                            await picker.pickMultiImage();
+                        List<XFile> images = await picker.pickMultiImage();
 
                         if (images.isNotEmpty) {
                           // log('ImagePath: ${images.path}');
-                          for(var i in images) {
-                          setState(() => _isUploading = true);
-                          await APIs.sendChatImage(widget.user, File(i.path));
-                          setState(() => _isUploading = false);
-
+                          for (var i in images) {
+                            setState(() => _isUploading = true);
+                            await APIs.sendChatImage(widget.user, File(i.path));
+                            setState(() => _isUploading = false);
                           }
                         }
                       },
@@ -244,7 +269,8 @@ class ChatScreenState extends State<ChatScreen> {
                         if (image != null) {
                           log('ImagePath: ${image.path}');
                           setState(() => _isUploading = true);
-                          await APIs.sendChatImage(widget.user, File(image.path));
+                          await APIs.sendChatImage(
+                              widget.user, File(image.path));
                           setState(() => _isUploading = false);
                         }
                       },

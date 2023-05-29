@@ -42,8 +42,9 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomeScreen()));
         } else {
-          await APIs.createuser().then((value) => 
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen())),
+          await APIs.createuser().then(
+            (value) => Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (_) => HomeScreen())),
           );
         }
       }
@@ -51,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<UserCredential?> _signInWithGoogle() async {
+    log("Inside sign in with google");
     try {
       await InternetAddress.lookup("google.com");
 

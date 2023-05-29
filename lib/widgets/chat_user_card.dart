@@ -9,6 +9,7 @@ import 'package:untitled/main.dart';
 import 'package:untitled/screens/chat_screen.dart';
 import '../models/chat_user.dart';
 import '../models/messages.dart';
+import 'dialogs/profile_dialog.dart';
 
 class ChatUserCard extends StatefulWidget {
   final ChatUser user;
@@ -46,15 +47,18 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 _lastMessage = _listOfMessages[0];
               }
               return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(mq.height * .03),
-                  child: CachedNetworkImage(
-                    width: mq.height * .055,
-                    height: mq.height * .055,
-                    fit: BoxFit.cover,
-                    imageUrl: widget.user.image,
-                    errorWidget: (context, url, error) =>
-                        const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                leading: InkWell(
+                  onTap: () => showDialog(context: context, builder: (_) => ProfileDialog(user: widget.user)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(mq.height * .03),
+                    child: CachedNetworkImage(
+                      width: mq.height * .055,
+                      height: mq.height * .055,
+                      fit: BoxFit.cover,
+                      imageUrl: widget.user.image,
+                      errorWidget: (context, url, error) =>
+                          const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                    ),
                   ),
                 ),
                 title: Text(widget.user.name),
@@ -69,7 +73,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
                       color: Colors.greenAccent.shade400,
                       borderRadius: BorderRadius.circular(10)),
                 )
-                : Text(MyDateFormatter.getLastMessageTime(context: context, time: _lastMessage!.sent), style: TextStyle(color: Colors.black54),)
+                : Text(MyDateFormatter.getLastMessageTime(context: context, time: _lastMessage!.sent, year: false), style: TextStyle(color: Colors.black54),)
               );
             },
           )),
