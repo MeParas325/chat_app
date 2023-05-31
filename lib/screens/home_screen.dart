@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:untitled/widgets/chat_user_card.dart';
 import '../api/apis.dart';
+import '../helper/dialogs.dart';
 import '../models/chat_user.dart';
 import 'profile_screen.dart';
 
@@ -15,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<ChatUser> _usersData = [];
+  List<ChatUser> _list = [];
   final List<ChatUser> _searchList = [];
 
   bool _isSearching = false;
@@ -24,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     APIs.getSelfInfo();
     super.initState();
-    
+
     SystemChannels.lifecycle.setMessageHandler((message) {
       if (APIs.auth.currentUser != null) {
         if (message.toString().contains('resume'))
@@ -70,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onChanged: (value) {
                         _searchList.clear();
                         if (value.isNotEmpty) {
-                          for (var i in _usersData) {
+                          for (var i in _list) {
                             if (i.name
                                     .toLowerCase()
                                     .contains(value.toLowerCase()) ||
@@ -113,7 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icon(Icons.more_vert)),
               ]),
           body: StreamBuilder(
-              stream: APIs.getAllUsers(),
+              stream: APIs.getMyUsersId(),
+
+              // get id of only known users
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
@@ -124,46 +127,137 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   case ConnectionState.active:
                   case ConnectionState.done:
-                    final data = snapshot.data?.docs;
+                    return StreamBuilder(
+                        stream: APIs.getAllUsers(
+                            snapshot.data?.docs.map((doc) => doc.id).toList() ??
+                                []),
 
-                    _usersData = data
-                            ?.map((user) => ChatUser.fromJson(user.data()))
-                            .toList() ??
-                        [];
-                    // log('Data: ${usersData}');
+                        // get only those users whose Ids are provided
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.waiting:
+                            case ConnectionState.none:
+                            // return Center(
+                            //   child: CircularProgressIndicator(),
+                            // );
 
-                    if (_usersData.isNotEmpty) {
-                      return ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          itemCount: _isSearching
-                              ? _searchList.length
-                              : _usersData.length,
-                          itemBuilder: (context, index) {
-                            return ChatUserCard(
-                              user: _isSearching
-                                  ? _searchList[index]
-                                  : _usersData[index],
-                            );
-                          });
-                    } else {
-                      return Center(
-                          child: Text(
-                        "No Connections Found!",
-                        style: TextStyle(fontSize: 17, color: Colors.black54),
-                      ));
-                    }
+                            case ConnectionState.active:
+                            case ConnectionState.done:
+                              final data = snapshot.data?.docs;
+
+                              _list = data
+                                      ?.map((user) =>
+                                          ChatUser.fromJson(user.data()))
+                                      .toList() ??
+                                  [];
+                              // log('Data: ${usersData}');
+
+                              if (_list.isNotEmpty) {
+                                return ListView.builder(
+                                    physics: BouncingScrollPhysics(),
+                                    itemCount: _isSearching
+                                        ? _searchList.length
+                                        : _list.length,
+                                    itemBuilder: (context, index) {
+                                      return ChatUserCard(
+                                        user: _isSearching
+                                            ? _searchList[index]
+                                            : _list[index],
+                                      );
+                                    });
+                              } else {
+                                return Center(
+                                    child: Text(
+                                  "No Connections Found!",
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black54),
+                                ));
+                              }
+                          }
+                        });
                 }
               }),
           floatingActionButton: Padding(
               padding: const EdgeInsets.all(8.0),
               child: FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  _addChatUserDialog();
+                },
                 child: Icon(
-                  Icons.message_rounded,
+                  Icons.add_comment_rounded,
                 ),
               )),
         ),
       ),
     );
+  }
+
+  // for adding new chat user
+  void _addChatUserDialog() {
+    String email = '';
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              contentPadding: const EdgeInsets.only(
+                  left: 24, right: 24, top: 20, bottom: 10),
+
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+
+              //title
+              title: Row(
+                children: const [
+                  Icon(
+                    Icons.person_add,
+                    color: Colors.blue,
+                    size: 28,
+                  ),
+                  Text('  Add User')
+                ],
+              ),
+
+              //content
+              content: TextFormField(
+                maxLines: null,
+                onChanged: (value) => email = value,
+                decoration: InputDecoration(
+                    hintText: 'Email Id',
+                    prefixIcon: const Icon(Icons.email, color: Colors.blue),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15))),
+              ),
+
+              //actions
+              actions: [
+                //cancel button
+                MaterialButton(
+                    onPressed: () {
+                      //hide alert dialog
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel',
+                        style: TextStyle(color: Colors.blue, fontSize: 16))),
+
+                //add button
+                MaterialButton(
+                    onPressed: () async {
+                      //hide alert dialog
+                      Navigator.pop(context);
+                      if (email.isNotEmpty) {
+                        await APIs.addChatUser(email).then((value) {
+                          if (!value) {
+                            Dialogs.showSnackbar(
+                                context, 'User does not Exists!');
+                          }
+                        });
+                      }
+                    },
+                    child: const Text(
+                      'Add',
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    ))
+              ],
+            ));
   }
 }

@@ -2,7 +2,10 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:untitled/api/apis.dart';
+import 'package:untitled/helper/dialogs.dart';
 
 import '../helper/my_date_formatter.dart';
 import '../main.dart';
@@ -172,24 +175,44 @@ class _MessageCardState extends State<MessageCard> {
                     borderRadius: BorderRadius.circular(8.0)),
               ),
 
-              widget.msg.type == Type.text ?
-              // copy option
-              _OptionItem(
-                  icon: Icon(
-                    Icons.copy_outlined,
-                    color: Colors.blue,
-                  ),
-                  name: 'Copy Text',
-                  onTap: () {})
-                :
-                // save image option
-                 _OptionItem(
-                  icon: Icon(
-                    Icons.download,
-                    color: Colors.blue,
-                  ),
-                  name: 'Save Image',
-                  onTap: () {}),
+              widget.msg.type == Type.text
+                  ?
+                  // copy option
+                  _OptionItem(
+                      icon: Icon(
+                        Icons.copy_outlined,
+                        color: Colors.blue,
+                      ),
+                      name: 'Copy Text',
+                      onTap: () async {
+                        await Clipboard.setData(
+                                ClipboardData(text: widget.msg.msg))
+                            .then((value) {
+                          // for hiding bottom sheet
+                          Navigator.pop(context);
+
+                          Dialogs.showSnackbar(context, 'Text Copied');
+                        });
+                      })
+                  :
+                  // save image option
+                  _OptionItem(
+                      icon: Icon(
+                        Icons.download,
+                        color: Colors.blue,
+                      ),
+                      name: 'Save Image',
+                      onTap: () {
+                        GallerySaver.saveImage(widget.msg.msg, albumName: 'Our Chat').then((success) {
+                          // for hiding bottom sheet
+                          Navigator.pop(context);
+
+                          if (success != null && success) {
+                            Dialogs.showSnackbar(
+                                context, 'Image Saved Successfully!');
+                          }
+                        });
+                      }),
 
               // seperator or divider
               Divider(
@@ -198,8 +221,8 @@ class _MessageCardState extends State<MessageCard> {
                 endIndent: mq.width * 0.04,
               ),
 
-              if(widget.msg.type == Type.text  && isMe) 
-              // edit option
+              if (widget.msg.type == Type.text && isMe)
+                // edit option
                 _OptionItem(
                     icon: Icon(
                       Icons.edit,
@@ -207,21 +230,25 @@ class _MessageCardState extends State<MessageCard> {
                       size: 26,
                     ),
                     name: 'Edit Message',
-                    onTap: () {}),
+                    onTap: () async {}),
 
-              if(isMe) 
-              // delete option
+              if (isMe)
+                // delete option
                 _OptionItem(
-                    icon: Icon(
-                      Icons.delete_forever,
-                      color: Colors.red,
-                      size: 26
-                    ),
+                    icon:
+                        Icon(Icons.delete_forever, color: Colors.red, size: 26),
                     name: 'Delete Message',
-                    onTap: () {}),
+                    onTap: () {
+                      APIs.deleteMessage(widget.msg);
 
-              if(isMe)
-              // seperator or divider
+                      // for hiding bottom sheet
+                      Navigator.pop(context);
+
+                      Dialogs.showSnackbar(context, 'Message Deleted');
+                    }),
+
+              if (isMe)
+                // seperator or divider
                 Divider(
                   color: Colors.black54,
                   indent: mq.width * 0.04,
@@ -234,7 +261,8 @@ class _MessageCardState extends State<MessageCard> {
                     Icons.remove_red_eye,
                     color: Colors.blue,
                   ),
-                  name: 'Sent At: ${MyDateFormatter.getMessageTime(context: context, time: widget.msg.sent)}',
+                  name:
+                      'Sent At: ${MyDateFormatter.getMessageTime(context: context, time: widget.msg.sent)}',
                   onTap: () {}),
 
               // read time
@@ -243,7 +271,9 @@ class _MessageCardState extends State<MessageCard> {
                     Icons.remove_red_eye,
                     color: Colors.green,
                   ),
-                  name: widget.msg.read.isEmpty ? 'Read At: Not seen yet' : 'Read At: ${MyDateFormatter.getMessageTime(context: context, time: widget.msg.read)}',
+                  name: widget.msg.read.isEmpty
+                      ? 'Read At: Not seen yet'
+                      : 'Read At: ${MyDateFormatter.getMessageTime(context: context, time: widget.msg.read)}',
                   onTap: () {}),
             ],
           );

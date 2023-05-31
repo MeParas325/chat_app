@@ -31,8 +31,7 @@ class APIs {
   static User get user => auth.currentUser!;
 
   // for getting firebase messaging token
-  static Future<void> 
-  getFirebaseMessagingToken() async {
+  static Future<void> getFirebaseMessagingToken() async {
     await fMessaging.requestPermission();
     await fMessaging.getToken().then((t) {
       if (t != null) {
@@ -90,6 +89,26 @@ class APIs {
         .exists;
   }
 
+  // for adding chatUser in our chatting list
+  static Future<bool> addChatUser(String email) async {
+    final data = await firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (data.docs.isNotEmpty && data.docs.first.id != user.uid) {
+      firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('my_users')
+          .doc(data.docs.first.id)
+          .set({});
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // for creating a new user
   static Future<void> createuser() async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
@@ -110,12 +129,48 @@ class APIs {
         .set(chatUser.toJson());
   }
 
-  // for getting all users from firestore database
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers() {
+  // for getting of known users form the firebase database
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {
     return APIs.firestore
         .collection('users')
-        .where('id', isNotEqualTo: user.uid)
+        .doc(user.uid)
+        .collection('my_users')
         .snapshots();
+  }
+
+  // for getting id's of known users from firestore database
+  // static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {
+  //   return firestore
+  //       .collection('users')
+  //       .doc(user.uid)
+  //       .collection('my_users')
+  //       .snapshots();
+  // }
+
+   // for getting all users from firestore database
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(
+      List<String> userIds) {
+    log('\nUserIds: $userIds');
+
+    return firestore
+        .collection('users')
+        .where('id',
+            whereIn: userIds.isEmpty
+                ? ['']
+                : userIds) //because empty list throws an error
+        // .where('id', isNotEqualTo: user.uid)
+        .snapshots();
+  }
+
+  // for adding a user to my user when message is send at the first time
+  static Future<void> sendFirstMessage(
+      ChatUser chatUser, String msg, Type type) async {
+    await firestore
+        .collection('users')
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .set({}).then((value) => sendMessage(chatUser, msg, type));
   }
 
   // for getting the current user info
@@ -249,5 +304,17 @@ class APIs {
       'last_active': DateTime.now().millisecondsSinceEpoch.toString(),
       'push_token': me.pushToken
     });
+  }
+
+  // for deleting message
+  static Future<void> deleteMessage(Message message) async {
+    await firestore
+        .collection('chats/${getConversionId(message.toId)}/messages')
+        .doc(message.sent)
+        .delete();
+
+    if (message.type == Type.image) {
+      await storage.refFromURL(message.msg).delete();
+    }
   }
 }

@@ -60,6 +60,8 @@ dependencies:
   http: ^0.13.5
   # for creating notification channels
   flutter_notification_channel: ^2.0.0
+  # for storing or downloading images
+  gallery_saver: ^2.3.2
 
 dev_dependencies:
   flutter_test:

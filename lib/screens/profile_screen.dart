@@ -30,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.user);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -105,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: InputDecoration(
                       label: Text("Username"),
                       hintText: "eg. Tanuja Juyal",
-                      prefix: Icon(
+                      prefixIcon: Icon(
                         Icons.person,
                         color: Colors.blue,
                       ),
@@ -124,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: InputDecoration(
                       label: Text("About"),
                       hintText: "eg. Feeling Happy",
-                      prefix: Icon(
+                      prefixIcon: Icon(
                         Icons.info_outlined,
                         color: Colors.blue,
                       ),
@@ -139,8 +138,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         APIs.updateUserInfo();
+                        
                         Dialogs.showSnackbar(
-                            context, 'Username updated successfully.');
+                            context, 'Profile updated successfully.');
                         log("Validator called");
                       }
                     },
