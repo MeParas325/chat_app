@@ -54,6 +54,12 @@ dependencies:
   firebase_storage: ^11.2.1
   # for showing emojis
   emoji_picker_flutter: ^1.5.4
+  # for accessing firebase messaging and push notifications functionality
+  firebase_messaging: ^14.6.1
+  # for calling RESTAPIs
+  http: ^0.13.5
+  # for creating notification channels
+  flutter_notification_channel: ^2.0.0
 
 dev_dependencies:
   flutter_test:

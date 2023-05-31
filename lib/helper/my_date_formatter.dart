@@ -8,7 +8,9 @@ class MyDateFormatter {
   }
 
   static String getLastMessageTime(
-      {required BuildContext context, required String time, required bool year}) {
+      {required BuildContext context,
+      required String time,
+      required bool year}) {
     final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
     final DateTime now = DateTime.now();
 
@@ -18,7 +20,9 @@ class MyDateFormatter {
       return TimeOfDay.fromDateTime(sent).format(context);
     }
 
-    return year == true ? '${sent.day} ${MyDateFormatter._getMonth(sent.month)} ${sent.year}' : '${sent.day} ${MyDateFormatter._getMonth(sent.month)}';
+    return year == true
+        ? '${sent.day} ${MyDateFormatter._getMonth(sent.month)} ${sent.year}'
+        : '${sent.day} ${MyDateFormatter._getMonth(sent.month)}';
   }
 
   static String _getMonth(int month) {
@@ -90,7 +94,6 @@ class MyDateFormatter {
   }
 
   static String _getMonthh(DateTime date) {
-
     switch (date.month) {
       case 1:
         return 'Jan';
@@ -131,6 +134,23 @@ class MyDateFormatter {
       default:
         return 'N/A';
     }
+  }
 
+  // for getting last message sent and read time
+  static String getMessageTime(
+      {required BuildContext context, required String time}) {
+    final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
+    final DateTime now = DateTime.now();
+
+    final formattedTime = TimeOfDay.fromDateTime(sent).format(context);
+    if (sent.day == now.day &&
+        sent.month == now.month &&
+        sent.year == now.year) {
+      return formattedTime;
+    }
+
+    return sent.year == now.year
+        ? '${formattedTime} - ${sent.day} ${MyDateFormatter._getMonth(sent.month)}'
+        : '${formattedTime} - ${sent.day} ${MyDateFormatter._getMonth(sent.month)} ${sent.year}';
   }
 }

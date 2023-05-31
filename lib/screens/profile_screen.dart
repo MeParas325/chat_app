@@ -56,8 +56,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: mq.height * .2,
                             fit: BoxFit.cover,
                           ),
-                        )
-                      : ClipRRect(
+                        ) :
+                       ClipRRect(
                           borderRadius: BorderRadius.circular(mq.height * .1),
                           child: CachedNetworkImage(
                             width: mq.height * .2,
@@ -164,8 +164,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: FloatingActionButton.extended(
             backgroundColor: Colors.red,
             onPressed: () async {
-              Dialogs.showProgressBar(context);
               await APIs.updateActiveStatus(false);
+              Dialogs.showProgressBar(context);
               await APIs.auth.signOut().then((value) async {
                 await GoogleSignIn().signOut().then((value) {
                   Navigator.pop(context);

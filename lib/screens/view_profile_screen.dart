@@ -67,7 +67,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('About: ', style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold),),
+                  Text('About: ', style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold, ),),
               Text(widget.user.about, style: TextStyle(color: Colors.black54, fontSize: 14),)
                 ],
               ),

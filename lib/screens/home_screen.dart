@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     APIs.getSelfInfo();
     super.initState();
-    APIs.updateActiveStatus(true);
+    
     SystemChannels.lifecycle.setMessageHandler((message) {
       if (APIs.auth.currentUser != null) {
         if (message.toString().contains('resume'))

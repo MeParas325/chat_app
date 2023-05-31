@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
 
 import 'screens/splash_screen.dart';
 
@@ -18,15 +22,20 @@ void main() async {
   SystemChrome.setPreferredOrientations(
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
       .then((value) async {
+    // initialize firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-        // initialize firebase
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-        runApp(const MyApp());
+    var result = await FlutterNotificationChannel.registerNotificationChannel(
+      description: 'For showing message notification',
+      id: 'chats',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Chats',
+    );
+    log('\nNotification channel result: ${result}');
+    runApp(const MyApp());
   });
-
-  
 }
 
 class MyApp extends StatelessWidget {
