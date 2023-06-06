@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -44,16 +45,18 @@ class _SplashScreenState extends State<SplashScreen> {
             top: mq.height * 0.25,
             width: mq.width * 0.5,
             right: mq.width * 0.25,
-            child: Image.asset("assets/icon/icon.png"),
+            child: BounceInDown(child: Image.asset("assets/icon/icon.png")),
           ),
           Positioned(
             bottom: mq.height * 0.15,
             width: mq.width,
-            child: Text(
-              "Made in India with 🧡",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 16, letterSpacing: 0.5, color: Colors.black87),
+            child: SlideInRight(
+              child: Text(
+                "Made in India with 🧡",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 16, letterSpacing: 0.5, color: Colors.black87),
+              ),
             ),
           ),
         ],

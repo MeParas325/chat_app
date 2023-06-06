@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -19,17 +20,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isAnimate = false;
 
-  @override
-  void initState() {
-    Future.delayed(Duration(milliseconds: 500), () {
-      setState(() {
-        _isAnimate = true;
-      });
-    });
-    super.initState();
-  }
 
   _handleGoogleBtnClick() {
     Dialogs.showProgressBar(context);
@@ -84,16 +75,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text("Welcome to Our Chat"),
+        title: Text("Welcome to We Chat"),
       ),
       body: Stack(
         children: [
-          AnimatedPositioned(
+          Positioned(
             top: mq.height * 0.15,
             width: mq.width * 0.5,
-            right: _isAnimate ? mq.width * 0.25 : -mq.width * 0.5,
-            duration: Duration(milliseconds: 1000),
-            child: Image.asset("assets/icon/icon.png"),
+            right: mq.width * 0.25,
+            child: FlipInX(child: Image.asset("assets/icon/icon.png")),
           ),
           Positioned(
             bottom: mq.height * 0.15,

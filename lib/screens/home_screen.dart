@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         border: InputBorder.none,
                       ),
                     )
-                  : Text("Our Chat"),
+                  : Text("We Chat"),
               actions: [
                 _isSearching
                     ? Container()
