@@ -3,13 +3,14 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:untitled/helper/my_date_formatter.dart';
 import 'package:untitled/widgets/message_card.dart';
-
 import '../api/apis.dart';
 import '../main.dart';
 import '../models/chat_user.dart';
@@ -47,11 +48,13 @@ class ChatScreenState extends State<ChatScreen> {
             }
           },
           child: Scaffold(
+            
             appBar: AppBar(
               automaticallyImplyLeading: false,
+              systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.white),
               flexibleSpace: _appBar(),
             ),
-            backgroundColor: Color.fromARGB(255, 240, 247, 250),
+            backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.light ? Color.fromARGB(255, 240, 247, 250) : Colors.grey.shade900,
             body: Column(
               children: [
                 Expanded(

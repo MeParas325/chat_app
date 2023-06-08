@@ -22,7 +22,7 @@ class MessageCard extends StatefulWidget {
 class _MessageCardState extends State<MessageCard> {
   @override
   Widget build(BuildContext context) {
-    bool isMe = APIs.user.uid == widget.msg.fromId;
+    bool isMe = APIs.user!.uid == widget.msg.fromId;
 
     return InkWell(
       onLongPress: () {
@@ -82,7 +82,7 @@ class _MessageCardState extends State<MessageCard> {
           child: Text(
             MyDateFormatter.getFormatDate(
                 context: context, time: widget.msg.sent),
-            style: TextStyle(fontSize: 13, color: Colors.black54),
+            style: TextStyle(fontSize: 13, color: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.black54 : Colors.white38),
           ),
         ),
       ],
@@ -110,7 +110,7 @@ class _MessageCardState extends State<MessageCard> {
             Text(
               MyDateFormatter.getFormatDate(
                   context: context, time: widget.msg.sent),
-              style: TextStyle(fontSize: 13, color: Colors.black54),
+              style: TextStyle(fontSize: 13, color: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.black54 : Colors.white38),
             ),
           ],
         ),

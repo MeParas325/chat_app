@@ -66,14 +66,14 @@ class _ChatUserCardState extends State<ChatUserCard> {
                   _lastMessage != null ? _lastMessage!.type ==  Type.image  ? 'Image' : _lastMessage!.msg : widget.user.about,
                   maxLines: 1,
                 ),
-                trailing: _lastMessage == null ? null : _lastMessage!.read.isEmpty && _lastMessage!.fromId != APIs.user.uid ? Container(
+                trailing: _lastMessage == null ? null : _lastMessage!.read.isEmpty && _lastMessage!.fromId != APIs.user?.uid ? Container(
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
                       color: Colors.greenAccent.shade400,
                       borderRadius: BorderRadius.circular(10)),
                 )
-                : Text(MyDateFormatter.getLastMessageTime(context: context, time: _lastMessage!.sent, year: false), style: TextStyle(color: Colors.black54),)
+                : Text(MyDateFormatter.getLastMessageTime(context: context, time: _lastMessage!.sent, year: false), style: TextStyle(color: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.black54 : Colors.white30),)
               );
             },
           )),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +17,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>{
   List<ChatUser> _list = [];
   final List<ChatUser> _searchList = [];
 
@@ -23,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    // WidgetsBinding.instance.addObserver(this);
     APIs.getSelfInfo();
     super.initState();
 
@@ -36,6 +39,24 @@ class _HomeScreenState extends State<HomeScreen> {
       return Future.value(message);
     });
   }
+
+  // @override
+  // void didChangePlatformBrightness() {
+  //   log("Theme changes");
+  //   if(MediaQuery.of(context).platformBrightness == Brightness.light) {
+
+  //     SystemChrome.setSystemUIOverlayStyle(
+  //       SystemUiOverlayStyle(statusBarColor: Colors.black));
+
+  //   } else {
+
+  //     SystemChrome.setSystemUIOverlayStyle(
+  //       SystemUiOverlayStyle(statusBarColor: Colors.white));
+
+  //   }
+
+  //   super.didChangePlatformBrightness();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                       icon: Icon(CupertinoIcons.arrow_left))
-                  : Icon(CupertinoIcons.home),
+                  : MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                      ? Icon(CupertinoIcons.sun_max_fill)
+                      : Icon(
+                          CupertinoIcons.moon_fill,
+                          color: Colors.white,
+                        ),
               title: _isSearching
                   ? TextField(
                       autofocus: true,

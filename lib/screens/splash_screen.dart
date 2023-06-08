@@ -21,8 +21,16 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(milliseconds: 2000), () {
       // disable full mode
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(statusBarColor: Colors.white));
+      // if(MediaQuery.of(context).platformBrightness == Brightness.light) {
+
+      //   SystemChrome.setSystemUIOverlayStyle(
+      //     SystemUiOverlayStyle(statusBarColor: Colors.white));
+
+      // } else {
+
+      //   SystemChrome.setSystemUIOverlayStyle(
+      //       SystemUiOverlayStyle(statusBarColor: Colors.black ));
+      // }
 
       if (APIs.auth.currentUser != null) {
         Navigator.pushReplacement(
@@ -55,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 "Made in India with 🧡",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 16, letterSpacing: 0.5, color: Colors.black87),
+                    fontSize: 16, letterSpacing: 0.5, color: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.black87 : Colors.white),
               ),
             ),
           ),
