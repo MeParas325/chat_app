@@ -240,6 +240,24 @@ class APIs {
       ChatUser chatUser, String msg, Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
+  //   final publicKey = await parseKeyFromFile<RSAPublicKey>('test/public.pem');
+  //   final privKey = await parseKeyFromFile<RSAPrivateKey>('test/private.pem');
+  //   final plainText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+  //   Encrypter encrypter;
+  //   Encrypted encrypted;
+  //   String decrypted;
+  
+  // // PKCS1 (Default)
+  //   encrypter = Encrypter(RSA(publicKey: publicKey, privateKey: privKey));
+  //   encrypted = encrypter.encrypt(plainText);
+  //   decrypted = encrypter.decrypt(encrypted);
+
+  //   print('PKCS1 (Default)');
+  //   print(decrypted);
+  //   print(encrypted.bytes);
+  //   print(encrypted.base16);
+  //   print(encrypted.base64)
+
     final Message message = Message(
         toId: chatUser.id,
         msg: msg,

@@ -6,7 +6,7 @@ class MyThemes{
   static final lightTheme = ThemeData(
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,
-      systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.white),
+      systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
       iconTheme: IconThemeData(color: Colors.black),
       elevation: 1,
       centerTitle: true,

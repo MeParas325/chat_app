@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class ProfileDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       contentPadding: EdgeInsets.all(0),
-      backgroundColor: Colors.white.withOpacity(.9),
+      backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.light ? Colors.white.withOpacity(.9) : Colors.black.withOpacity(.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: SizedBox(
         width: mq.width * .6,
@@ -26,7 +27,7 @@ class ProfileDialog extends StatelessWidget {
                 top: mq.height * 0.015,
                 child: Text(
                   user.name,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: MediaQuery.of(context).platformBrightness == Brightness.light ? null : Colors.white),
                 )),
             Align(
               alignment: Alignment.topRight,

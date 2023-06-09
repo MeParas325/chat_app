@@ -47,84 +47,86 @@ class ChatScreenState extends State<ChatScreen> {
               return Future.value(true);
             }
           },
-          child: Scaffold(
-            
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.white),
-              flexibleSpace: _appBar(),
-            ),
-            backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.light ? Color.fromARGB(255, 240, 247, 250) : Colors.grey.shade900,
-            body: Column(
-              children: [
-                Expanded(
-                  child: StreamBuilder(
-                      stream: APIs.getAllMessages(widget.user),
-                      builder: (context, snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                          case ConnectionState.none:
-                            return Center(
-                              child: SizedBox(),
-                            );
-
-                          case ConnectionState.active:
-                          case ConnectionState.done:
-                            final data = snapshot.data?.docs;
-
-                            _listOfMessages = data
-                                    ?.map(
-                                        (user) => Message.fromJson(user.data()))
-                                    .toList() ??
-                                [];
-                            log('Data: ${_listOfMessages}');
-
-                            if (_listOfMessages.isNotEmpty) {
-                              return ListView.builder(
-                                  reverse: true,
-                                  physics: BouncingScrollPhysics(),
-                                  itemCount: _listOfMessages.length,
-                                  itemBuilder: (context, index) {
-                                    return MessageCard(
-                                        msg: _listOfMessages[index]);
-                                  });
-                            } else {
+          child: SafeArea(
+            child: Scaffold(
+              
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.white),
+                flexibleSpace: _appBar(),
+              ),
+              backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.light ? Color.fromARGB(255, 240, 247, 250) : Colors.grey.shade900,
+              body: Column(
+                children: [
+                  Expanded(
+                    child: StreamBuilder(
+                        stream: APIs.getAllMessages(widget.user),
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.waiting:
+                            case ConnectionState.none:
                               return Center(
-                                  child: Text(
-                                "Say hi!👋",
-                                style: TextStyle(
-                                    fontSize: 17, color: Colors.black54),
-                              ));
-                            }
-                        }
-                      }),
-                ),
-                if (_isUploading)
-                  Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                                child: SizedBox(),
+                              );
+          
+                            case ConnectionState.active:
+                            case ConnectionState.done:
+                              final data = snapshot.data?.docs;
+          
+                              _listOfMessages = data
+                                      ?.map(
+                                          (user) => Message.fromJson(user.data()))
+                                      .toList() ??
+                                  [];
+                              log('Data: ${_listOfMessages}');
+          
+                              if (_listOfMessages.isNotEmpty) {
+                                return ListView.builder(
+                                    reverse: true,
+                                    physics: BouncingScrollPhysics(),
+                                    itemCount: _listOfMessages.length,
+                                    itemBuilder: (context, index) {
+                                      return MessageCard(
+                                          msg: _listOfMessages[index]);
+                                    });
+                              } else {
+                                return Center(
+                                    child: Text(
+                                  "Say hi!👋",
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black54),
+                                ));
+                              }
+                          }
+                        }),
+                  ),
+                  if (_isUploading)
+                    Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )),
+                  _chatInputField(),
+                  if (_showEmojis)
+                    SizedBox(
+                      height: mq.height * 0.35,
+                      child: EmojiPicker(
+                        textEditingController:
+                            _textController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
+                        config: Config(
+                          columns: 7,
+                          emojiSizeMax: 32 *
+                              (Platform.isIOS
+                                  ? 1.30
+                                  : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
                         ),
-                      )),
-                _chatInputField(),
-                if (_showEmojis)
-                  SizedBox(
-                    height: mq.height * 0.35,
-                    child: EmojiPicker(
-                      textEditingController:
-                          _textController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
-                      config: Config(
-                        columns: 7,
-                        emojiSizeMax: 32 *
-                            (Platform.isIOS
-                                ? 1.30
-                                : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
                       ),
-                    ),
-                  )
-              ],
+                    )
+                ],
+              ),
             ),
           ),
         ),

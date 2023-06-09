@@ -75,145 +75,147 @@ class _HomeScreenState extends State<HomeScreen>{
             return Future.value(true);
           }
         },
-        child: Scaffold(
-          appBar: AppBar(
-              leading: _isSearching
-                  ? IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _isSearching = !_isSearching;
-                        });
-                      },
-                      icon: Icon(CupertinoIcons.arrow_left))
-                  : MediaQuery.of(context).platformBrightness ==
-                          Brightness.light
-                      ? Icon(CupertinoIcons.sun_max_fill)
-                      : Icon(
-                          CupertinoIcons.moon_fill,
-                          color: Colors.white,
-                        ),
-              title: _isSearching
-                  ? TextField(
-                      autofocus: true,
-                      onChanged: (value) {
-                        _searchList.clear();
-                        if (value.isNotEmpty) {
-                          for (var i in _list) {
-                            if (i.name
-                                    .toLowerCase()
-                                    .contains(value.toLowerCase()) ||
-                                i.email
-                                    .toLowerCase()
-                                    .contains(value.toLowerCase())) {
-                              _searchList.add(i);
-                              setState(() {
-                                _searchList;
-                              });
-                            }
-                          }
-                        }
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search by name, email...',
-                        border: InputBorder.none,
-                      ),
-                    )
-                  : Text("We Chat"),
-              actions: [
-                _isSearching
-                    ? Container()
-                    : IconButton(
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+                leading: _isSearching
+                    ? IconButton(
                         onPressed: () {
                           setState(() {
                             _isSearching = !_isSearching;
                           });
                         },
-                        icon: Icon(Icons.search)),
-                IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ProfileScreen(
-                                    user: APIs.me,
-                                  )));
-                    },
-                    icon: Icon(Icons.more_vert)),
-              ]),
-          body: StreamBuilder(
-              stream: APIs.getMyUsersId(),
-
-              // get id of only known users
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                  case ConnectionState.none:
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-
-                  case ConnectionState.active:
-                  case ConnectionState.done:
-                    return StreamBuilder(
-                        stream: APIs.getAllUsers(
-                            snapshot.data?.docs.map((doc) => doc.id).toList() ??
-                                []),
-
-                        // get only those users whose Ids are provided
-                        builder: (context, snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.waiting:
-                            case ConnectionState.none:
-                            // return Center(
-                            //   child: CircularProgressIndicator(),
-                            // );
-
-                            case ConnectionState.active:
-                            case ConnectionState.done:
-                              final data = snapshot.data?.docs;
-
-                              _list = data
-                                      ?.map((user) =>
-                                          ChatUser.fromJson(user.data()))
-                                      .toList() ??
-                                  [];
-                              // log('Data: ${usersData}');
-
-                              if (_list.isNotEmpty) {
-                                return ListView.builder(
-                                    physics: BouncingScrollPhysics(),
-                                    itemCount: _isSearching
-                                        ? _searchList.length
-                                        : _list.length,
-                                    itemBuilder: (context, index) {
-                                      return ChatUserCard(
-                                        user: _isSearching
-                                            ? _searchList[index]
-                                            : _list[index],
-                                      );
-                                    });
-                              } else {
-                                return Center(
-                                    child: Text(
-                                  "No Connections Found!",
-                                  style: TextStyle(
-                                      fontSize: 17, color: Colors.black54),
-                                ));
+                        icon: Icon(CupertinoIcons.arrow_left))
+                    : MediaQuery.of(context).platformBrightness ==
+                            Brightness.light
+                        ? Icon(CupertinoIcons.sun_max_fill)
+                        : Icon(
+                            CupertinoIcons.moon_fill,
+                            color: Colors.white,
+                          ),
+                title: _isSearching
+                    ? TextField(
+                        autofocus: true,
+                        onChanged: (value) {
+                          _searchList.clear();
+                          if (value.isNotEmpty) {
+                            for (var i in _list) {
+                              if (i.name
+                                      .toLowerCase()
+                                      .contains(value.toLowerCase()) ||
+                                  i.email
+                                      .toLowerCase()
+                                      .contains(value.toLowerCase())) {
+                                _searchList.add(i);
+                                setState(() {
+                                  _searchList;
+                                });
                               }
+                            }
                           }
-                        });
-                }
-              }),
-          floatingActionButton: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FloatingActionButton(
-                onPressed: () {
-                  _addChatUserDialog();
-                },
-                child: Icon(
-                  Icons.add_comment_rounded,
-                ),
-              )),
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search by name, email...',
+                          border: InputBorder.none,
+                        ),
+                      )
+                    : Text("We Chat"),
+                actions: [
+                  _isSearching
+                      ? Container()
+                      : IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isSearching = !_isSearching;
+                            });
+                          },
+                          icon: Icon(Icons.search)),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ProfileScreen(
+                                      user: APIs.me,
+                                    )));
+                      },
+                      icon: Icon(Icons.more_vert)),
+                ]),
+            body: StreamBuilder(
+                stream: APIs.getMyUsersId(),
+        
+                // get id of only known users
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                    case ConnectionState.none:
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+        
+                    case ConnectionState.active:
+                    case ConnectionState.done:
+                      return StreamBuilder(
+                          stream: APIs.getAllUsers(
+                              snapshot.data?.docs.map((doc) => doc.id).toList() ??
+                                  []),
+        
+                          // get only those users whose Ids are provided
+                          builder: (context, snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.waiting:
+                              case ConnectionState.none:
+                              // return Center(
+                              //   child: CircularProgressIndicator(),
+                              // );
+        
+                              case ConnectionState.active:
+                              case ConnectionState.done:
+                                final data = snapshot.data?.docs;
+        
+                                _list = data
+                                        ?.map((user) =>
+                                            ChatUser.fromJson(user.data()))
+                                        .toList() ??
+                                    [];
+                                // log('Data: ${usersData}');
+        
+                                if (_list.isNotEmpty) {
+                                  return ListView.builder(
+                                      physics: BouncingScrollPhysics(),
+                                      itemCount: _isSearching
+                                          ? _searchList.length
+                                          : _list.length,
+                                      itemBuilder: (context, index) {
+                                        return ChatUserCard(
+                                          user: _isSearching
+                                              ? _searchList[index]
+                                              : _list[index],
+                                        );
+                                      });
+                                } else {
+                                  return Center(
+                                      child: Text(
+                                    "No Connections Found!",
+                                    style: TextStyle(
+                                        fontSize: 17, color: Colors.black54),
+                                  ));
+                                }
+                            }
+                          });
+                  }
+                }),
+            floatingActionButton: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    _addChatUserDialog();
+                  },
+                  child: Icon(
+                    Icons.add_comment_rounded,
+                  ),
+                )),
+          ),
         ),
       ),
     );
